@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>飞书日历 - 月视图</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #f8fafc;
+      }
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        background: #e2e8f0;
+      }
+      .calendar-cell {
+        background: white;
+        min-height: 120px;
+        padding: 8px;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .calendar-cell:hover {
+        background: #f1f5f9;
+      }
+      .calendar-cell.other-month {
+        background: #f8fafc;
+        color: #94a3b8;
+      }
+      .calendar-cell.today {
+        background: #eff6ff;
+        border: 2px solid #3b82f6;
+        & div:not(.event-item) {
+          width: 26px;
+          height: 26px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          background-color: #3b82f6;
+          color: #fff;
+        }
+      }
+      .event-item {
+        background: #3b82f6;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin: 2px 0;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+      }
+      .event-item:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .event-item.work {
+        background: #ef4444;
+      }
+      .event-item.personal {
+        background: #10b981;
+      }
+      .event-item.meeting {
+        background: #f59e0b;
+      }
+      .event-item.important {
+        background: #8b5cf6;
+      }
+      .tag-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+      }
+      .sidebar-tag {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin: 2px 0;
+      }
+      .sidebar-tag:hover {
+        background: #f1f5f9;
+      }
+      .sidebar-tag.active {
+        background: #eff6ff;
+        border-left: 3px solid #3b82f6;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <div class="flex h-screen">
+      <!-- 左侧边栏 -->
+      <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <!-- 用户信息 -->
+        <div class="p-4 border-b border-gray-200">
+          <div class="flex items-center space-x-3">
+            <img
+              src="https://s16-imfile-sg.feishucdn.com/static-resource/v1/v3_00kf_cbb613f5-677b-4d20-878d-a46d76c786hu~?image_size=72x72&cut_type=&quality=&format=image&sticker_format=.webp"
+              alt="用户头像"
+              class="w-10 h-10 rounded-full"
+            />
+            <div>
+              <div class="font-medium text-gray-900">wook</div>
+              <div class="text-sm text-gray-500">今日工时：4h</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 快速操作 -->
+        <div class="p-4 border-b border-gray-200">
+          <button
+            class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+          >
+            <i class="fas fa-plus mr-2"></i>
+            创建事项
+          </button>
+        </div>
+
+        <!-- 我的日历 -->
+        <div class="p-4 border-b border-gray-200">
+          <h3 class="text-sm font-medium text-gray-900 mb-3">我的日历</h3>
+          <div class="space-y-1">
+            <div class="sidebar-tag active">
+              <span class="tag-dot bg-blue-500"></span>
+              <span class="text-sm">个人日历</span>
+              <i class="fas fa-eye ml-auto text-gray-400"></i>
+            </div>
+            <!-- <div class="sidebar-tag">
+                        <span class="tag-dot bg-green-500"></span>
+                        <span class="text-sm">工作日历</span>
+                        <i class="fas fa-eye ml-auto text-gray-400"></i>
+                    </div> -->
+          </div>
+        </div>
+
+        <!-- 自定义标签 -->
+        <div class="p-4 flex-1">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-medium text-gray-900">自定义标签</h3>
+            <button class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-plus text-xs"></i>
+            </button>
+          </div>
+          <div class="space-y-1">
+            <div class="sidebar-tag">
+              <span class="tag-dot bg-red-500"></span>
+              <span class="text-sm">公司</span>
+              <i class="fas fa-eye ml-auto text-gray-400"></i>
+            </div>
+            <div class="sidebar-tag">
+              <span class="tag-dot bg-green-500"></span>
+              <span class="text-sm">效率工具</span>
+              <i class="fas fa-eye ml-auto text-gray-400"></i>
+            </div>
+            <div class="sidebar-tag">
+              <span class="tag-dot bg-yellow-500"></span>
+              <span class="text-sm">研发中台</span>
+              <i class="fas fa-eye ml-auto text-gray-400"></i>
+            </div>
+            <div class="sidebar-tag">
+              <span class="tag-dot bg-purple-500"></span>
+              <span class="text-sm">算法中台</span>
+              <i class="fas fa-eye ml-auto text-gray-400"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主内容区域 -->
+      <div class="flex-1 flex flex-col">
+        <!-- 顶部导航栏 -->
+        <div class="bg-white border-b border-gray-200 px-6 py-4">
+          <div class="flex items-center justify-between">
+            <!-- 左侧：视图切换和日期导航 -->
+            <div class="flex items-center space-x-4">
+              <!-- 视图切换 -->
+              <div class="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  class="px-3 py-1 text-sm rounded-md bg-white shadow-sm text-blue-600 font-medium"
+                >
+                  月
+                </button>
+                <button
+                  class="px-3 py-1 text-sm rounded-md text-gray-600 hover:text-gray-900"
+                >
+                  周
+                </button>
+                <button
+                  class="px-3 py-1 text-sm rounded-md text-gray-600 hover:text-gray-900"
+                >
+                  日
+                </button>
+              </div>
+
+              <!-- 日期导航 -->
+              <div class="flex items-center space-x-2">
+                <button class="p-2 hover:bg-gray-100 rounded-lg">
+                  <i class="fas fa-chevron-left text-gray-600"></i>
+                </button>
+                <h2 class="text-xl font-semibold text-gray-900">2024年1月</h2>
+                <button class="p-2 hover:bg-gray-100 rounded-lg">
+                  <i class="fas fa-chevron-right text-gray-600"></i>
+                </button>
+              </div>
+
+              <button
+                class="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded-lg"
+              >
+                今天
+              </button>
+            </div>
+
+            <!-- 右侧：搜索和设置 -->
+            <div class="flex items-center space-x-3">
+              <div class="relative">
+                <input
+                  type="text"
+                  placeholder="搜索事项..."
+                  class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <i
+                  class="fas fa-search absolute left-3 top-3 text-gray-400"
+                ></i>
+              </div>
+              <button class="p-2 hover:bg-gray-100 rounded-lg">
+                <i class="fas fa-cog text-gray-600"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 日历主体 -->
+        <div class="flex-1 p-6">
+          <!-- 星期标题 -->
+          <div class="grid grid-cols-7 gap-1 mb-1">
+            <div class="text-center py-3 text-sm font-medium text-gray-600">
+              周日
+            </div>
+            <div class="text-center py-3 text-sm font-medium text-gray-600">
+              周一
+            </div>
+            <div class="text-center py-3 text-sm font-medium text-gray-600">
+              周二
+            </div>
+            <div class="text-center py-3 text-sm font-medium text-gray-600">
+              周三
+            </div>
+            <div class="text-center py-3 text-sm font-medium text-gray-600">
+              周四
+            </div>
+            <div class="text-center py-3 text-sm font-medium text-gray-600">
+              周五
+            </div>
+            <div class="text-center py-3 text-sm font-medium text-gray-600">
+              周六
+            </div>
+          </div>
+
+          <!-- 日历网格 -->
+          <div class="calendar-grid rounded-lg overflow-hidden shadow-sm">
+            <!-- 第一周 -->
+            <div class="calendar-cell other-month">
+              <div class="text-sm">31</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">1</div>
+              <div class="event-item work">新年计划会议</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">2</div>
+              <div class="event-item personal">健身</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">3</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">4</div>
+              <div class="event-item meeting">产品评审</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">5</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">6</div>
+              <div class="event-item personal">周末聚餐</div>
+            </div>
+
+            <!-- 第二周 -->
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">7</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">8</div>
+              <div class="event-item work">项目启动</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">9</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">10</div>
+              <div class="event-item important">重要会议</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">11</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">12</div>
+              <div class="event-item meeting">团队建设</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">13</div>
+            </div>
+
+            <!-- 第三周 -->
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">14</div>
+            </div>
+            <div class="calendar-cell today">
+              <div class="text-sm font-medium text-blue-600">15</div>
+              <div class="event-item work">代码评审</div>
+              <div class="event-item personal">看电影</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">16</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">17</div>
+              <div class="event-item meeting">客户拜访</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">18</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">19</div>
+              <div class="event-item important">季度总结</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">20</div>
+            </div>
+
+            <!-- 第四周 -->
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">21</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">22</div>
+              <div class="event-item work">需求分析</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">23</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">24</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">25</div>
+              <div class="event-item personal">生日聚会</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">26</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">27</div>
+            </div>
+
+            <!-- 第五周 -->
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">28</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">29</div>
+              <div class="event-item meeting">月度回顾</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">30</div>
+            </div>
+            <div class="calendar-cell">
+              <div class="text-sm font-medium">31</div>
+              <div class="event-item important">年终总结</div>
+            </div>
+            <div class="calendar-cell other-month">
+              <div class="text-sm">1</div>
+            </div>
+            <div class="calendar-cell other-month">
+              <div class="text-sm">2</div>
+            </div>
+            <div class="calendar-cell other-month">
+              <div class="text-sm">3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 模拟拖拽功能
+      document.addEventListener("DOMContentLoaded", function () {
+        const eventItems = document.querySelectorAll(".event-item");
+        const calendarCells = document.querySelectorAll(".calendar-cell");
+
+        eventItems.forEach((item) => {
+          item.draggable = true;
+          item.addEventListener("dragstart", function (e) {
+            e.dataTransfer.setData("text/plain", this.textContent);
+            this.style.opacity = "0.5";
+          });
+          item.addEventListener("dragend", function (e) {
+            this.style.opacity = "1";
+          });
+        });
+
+        calendarCells.forEach((cell) => {
+          cell.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            this.style.background = "#e0f2fe";
+          });
+          cell.addEventListener("dragleave", function (e) {
+            this.style.background = "";
+          });
+          cell.addEventListener("drop", function (e) {
+            e.preventDefault();
+            this.style.background = "";
+            console.log(
+              "事项已移动到:",
+              this.querySelector("div").textContent + "日"
+            );
+          });
+
+          // 点击创建事项
+          cell.addEventListener("click", function (e) {
+            if (e.target === this || e.target.tagName === "DIV") {
+              console.log(
+                "在",
+                this.querySelector("div").textContent + "日创建新事项"
+              );
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

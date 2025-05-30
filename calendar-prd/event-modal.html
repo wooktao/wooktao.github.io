@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书日历 - 创建事项</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+        }
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .color-option {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        .color-option.selected {
+            border-color: #374151;
+            transform: scale(1.2);
+        }
+        .time-input {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        .time-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+        }
+        .reminder-option {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .reminder-option:hover {
+            background: #f1f5f9;
+        }
+        .reminder-option.selected {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #2563eb;
+        }
+        .participant-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-left: -8px;
+        }
+        .participant-avatar:first-child {
+            margin-left: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 模拟背景日历 -->
+    <div class="h-screen bg-gray-100 flex items-center justify-center">
+        <div class="text-gray-400 text-center">
+            <i class="fas fa-calendar-alt text-6xl mb-4"></i>
+            <p class="text-lg">日历背景界面</p>
+        </div>
+    </div>
+
+    <!-- 事项创建弹窗 -->
+    <div class="modal-overlay fixed inset-0 flex items-center justify-center z-50">
+        <div class="modal-content">
+            <!-- 弹窗头部 -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">创建新事项</h2>
+                <button class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- 弹窗内容 -->
+            <div class="p-6 space-y-6">
+                <!-- 事项标题 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">事项标题</label>
+                    <input type="text" placeholder="输入事项标题..." 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg">
+                </div>
+
+                <!-- 时间设置 -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">开始时间</label>
+                        <div class="space-y-2">
+                            <input type="date" value="2024-01-17" class="time-input w-full">
+                            <input type="time" value="09:00" class="time-input w-full">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">结束时间</label>
+                        <div class="space-y-2">
+                            <input type="date" value="2024-01-17" class="time-input w-full">
+                            <input type="time" value="10:00" class="time-input w-full">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 全天事项切换 -->
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-700">全天事项</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+
+                <!-- 事项类型/标签 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">事项类型</label>
+                    <div class="flex items-center space-x-3">
+                        <div class="color-option selected" style="background: #ef4444;" data-type="work"></div>
+                        <span class="text-sm text-gray-600">工作</span>
+                        
+                        <div class="color-option" style="background: #10b981;" data-type="personal"></div>
+                        <span class="text-sm text-gray-600">个人</span>
+                        
+                        <div class="color-option" style="background: #f59e0b;" data-type="meeting"></div>
+                        <span class="text-sm text-gray-600">会议</span>
+                        
+                        <div class="color-option" style="background: #8b5cf6;" data-type="important"></div>
+                        <span class="text-sm text-gray-600">重要</span>
+                    </div>
+                </div>
+
+                <!-- 地点 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">地点</label>
+                    <div class="relative">
+                        <input type="text" placeholder="添加地点..." 
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <i class="fas fa-map-marker-alt absolute left-3 top-4 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- 描述 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">描述</label>
+                    <textarea placeholder="添加描述..." rows="3"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+                </div>
+
+                <!-- 提醒设置 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">提醒</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="reminder-option selected">
+                            <div class="text-sm font-medium">15分钟前</div>
+                        </div>
+                        <div class="reminder-option">
+                            <div class="text-sm font-medium">30分钟前</div>
+                        </div>
+                        <div class="reminder-option">
+                            <div class="text-sm font-medium">1小时前</div>
+                        </div>
+                        <div class="reminder-option">
+                            <div class="text-sm font-medium">1天前</div>
+                        </div>
+                        <div class="reminder-option">
+                            <div class="text-sm font-medium">自定义</div>
+                        </div>
+                        <div class="reminder-option">
+                            <div class="text-sm font-medium">无提醒</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 重复设置 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">重复</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option>不重复</option>
+                        <option>每天</option>
+                        <option>每周</option>
+                        <option>每月</option>
+                        <option>每年</option>
+                        <option>自定义</option>
+                    </select>
+                </div>
+
+                <!-- 参与者 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">参与者</label>
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="flex items-center">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" 
+                                 alt="张三" class="participant-avatar">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face" 
+                                 alt="李四" class="participant-avatar">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" 
+                                 alt="王五" class="participant-avatar">
+                        </div>
+                        <button class="w-8 h-8 bg-gray-100 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-plus text-gray-400 text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input type="text" placeholder="添加参与者..." 
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <i class="fas fa-user-plus absolute left-3 top-4 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- 权限设置 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">权限</label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option>仅自己可见</option>
+                        <option>团队可见</option>
+                        <option>公开</option>
+                    </select>
+                </div>
+
+                <!-- 附件 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">附件</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
+                        <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-600">点击上传或拖拽文件到此处</p>
+                        <p class="text-xs text-gray-400 mt-1">支持 PDF, DOC, PPT, 图片等格式</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 弹窗底部 -->
+            <div class="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+                <div class="flex items-center space-x-3">
+                    <button class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <i class="fas fa-trash-alt"></i>
+                        <span class="ml-1 text-sm">删除</span>
+                    </button>
+                    <button class="text-gray-500 hover:text-gray-700 transition-colors">
+                        <i class="fas fa-copy"></i>
+                        <span class="ml-1 text-sm">复制</span>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                        取消
+                    </button>
+                    <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 颜色选择器
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    colorOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+
+            // 提醒选项
+            const reminderOptions = document.querySelectorAll('.reminder-option');
+            reminderOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    reminderOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+
+            // 全天事项切换
+            const allDayToggle = document.querySelector('input[type="checkbox"]');
+            const timeInputs = document.querySelectorAll('input[type="time"]');
+            
+            allDayToggle.addEventListener('change', function() {
+                timeInputs.forEach(input => {
+                    input.style.display = this.checked ? 'none' : 'block';
+                });
+            });
+
+            // 文件上传区域
+            const uploadArea = document.querySelector('.border-dashed');
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('border-blue-400', 'bg-blue-50');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-blue-400', 'bg-blue-50');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-blue-400', 'bg-blue-50');
+                console.log('文件已上传:', e.dataTransfer.files);
+            });
+
+            // 模拟保存功能
+            const saveButton = document.querySelector('.bg-blue-600');
+            saveButton.addEventListener('click', function() {
+                console.log('事项已保存');
+                // 这里可以添加实际的保存逻辑
+            });
+
+            // 关闭弹窗
+            const closeButton = document.querySelector('.fa-times').parentElement;
+            const cancelButton = document.querySelector('button:contains("取消")');
+            
+            [closeButton].forEach(button => {
+                button.addEventListener('click', function() {
+                    console.log('关闭弹窗');
+                    // 这里可以添加关闭弹窗的逻辑
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

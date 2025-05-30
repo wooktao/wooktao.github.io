@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书日历 - 日视图</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+        }
+        .day-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 1px;
+            background: #e2e8f0;
+        }
+        .time-slot {
+            background: white;
+            height: 80px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .hour-column {
+            background: white;
+            height: 80px;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hour-column:hover {
+            background: #f1f5f9;
+        }
+        .half-hour-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #f1f5f9;
+            z-index: 1;
+        }
+        .event-block {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .event-block:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .event-block.work { background: #ef4444; }
+        .event-block.personal { background: #10b981; }
+        .event-block.meeting { background: #f59e0b; }
+        .event-block.important { background: #8b5cf6; }
+        .current-time-line {
+            position: absolute;
+            left: 80px;
+            right: 0;
+            height: 3px;
+            background: #ef4444;
+            z-index: 20;
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+            border-radius: 2px;
+        }
+        .current-time-dot {
+            position: absolute;
+            left: -8px;
+            top: -5px;
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        .sidebar-tag {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 2px 0;
+        }
+        .sidebar-tag:hover {
+            background: #f1f5f9;
+        }
+        .sidebar-tag.active {
+            background: #eff6ff;
+            border-left: 3px solid #3b82f6;
+        }
+        .tag-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .weather-widget {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- 左侧边栏 -->
+        <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
+            <!-- 用户信息 -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <img src="https://s16-imfile-sg.feishucdn.com/static-resource/v1/v3_00kf_cbb613f5-677b-4d20-878d-a46d76c786hu~?image_size=72x72&cut_type=&quality=&format=image&sticker_format=.webp" 
+                         alt="用户头像" class="w-10 h-10 rounded-full">
+                    <div>
+                        <div class="font-medium text-gray-900">wook</div>
+                        <div class="text-sm text-gray-500">今日工时：4h</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 天气信息 -->
+            <div class="weather-widget">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm opacity-90">北京</div>
+                        <div class="text-2xl font-bold">22°C</div>
+                        <div class="text-sm opacity-90">晴天</div>
+                    </div>
+                    <i class="fas fa-sun text-3xl opacity-80"></i>
+                </div>
+            </div>
+
+            <!-- 快速操作 -->
+            <div class="p-4 border-b border-gray-200">
+                <button class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    创建事项
+                </button>
+            </div>
+
+            <!-- 今日概览 -->
+            <div class="p-4 border-b border-gray-200">
+                <h3 class="text-sm font-medium text-gray-900 mb-3">今日概览</h3>
+                <div class="space-y-2">
+                    <div class="flex items-center text-sm">
+                        <span class="tag-dot bg-red-500"></span>
+                        <span class="text-gray-600">3个专家任务</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <span class="tag-dot bg-yellow-500"></span>
+                        <span class="text-gray-600">2个进阶任务</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <span class="tag-dot bg-green-500"></span>
+                        <span class="text-gray-600">1个简单任务</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 我的日历 -->
+            <div class="p-4 border-b border-gray-200">
+                <h3 class="text-sm font-medium text-gray-900 mb-3">我的日历</h3>
+                <div class="space-y-1">
+                    <div class="sidebar-tag active">
+                        <span class="tag-dot bg-blue-500"></span>
+                        <span class="text-sm">个人日历</span>
+                        <i class="fas fa-eye ml-auto text-gray-400"></i>
+                    </div>
+                    <!-- <div class="sidebar-tag">
+                        <span class="tag-dot bg-green-500"></span>
+                        <span class="text-sm">工作日历</span>
+                        <i class="fas fa-eye ml-auto text-gray-400"></i>
+                    </div> -->
+                </div>
+            </div>
+
+            <!-- 自定义标签 -->
+            <div class="p-4 flex-1">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-medium text-gray-900">自定义标签</h3>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                </div>
+                <div class="space-y-1">
+                    <div class="sidebar-tag">
+                        <span class="tag-dot bg-red-500"></span>
+                        <span class="text-sm">公司</span>
+                        <i class="fas fa-eye ml-auto text-gray-400"></i>
+                    </div>
+                    <div class="sidebar-tag">
+                        <span class="tag-dot bg-green-500"></span>
+                        <span class="text-sm">效率工具</span>
+                        <i class="fas fa-eye ml-auto text-gray-400"></i>
+                    </div>
+                    <div class="sidebar-tag">
+                        <span class="tag-dot bg-yellow-500"></span>
+                        <span class="text-sm">研发中台</span>
+                        <i class="fas fa-eye ml-auto text-gray-400"></i>
+                    </div>
+                    <div class="sidebar-tag">
+                        <span class="tag-dot bg-purple-500"></span>
+                        <span class="text-sm">算法中台</span>
+                        <i class="fas fa-eye ml-auto text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="flex-1 flex flex-col">
+            <!-- 顶部导航栏 -->
+            <div class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <!-- 左侧：视图切换和日期导航 -->
+                    <div class="flex items-center space-x-4">
+                        <!-- 视图切换 -->
+                        <div class="flex bg-gray-100 rounded-lg p-1">
+                            <button class="px-3 py-1 text-sm rounded-md text-gray-600 hover:text-gray-900">月</button>
+                            <button class="px-3 py-1 text-sm rounded-md text-gray-600 hover:text-gray-900">周</button>
+                            <button class="px-3 py-1 text-sm rounded-md bg-white shadow-sm text-blue-600 font-medium">日</button>
+                        </div>
+
+                        <!-- 日期导航 -->
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 hover:bg-gray-100 rounded-lg">
+                                <i class="fas fa-chevron-left text-gray-600"></i>
+                            </button>
+                            <h2 class="text-xl font-semibold text-gray-900">2024年1月17日 周三</h2>
+                            <button class="p-2 hover:bg-gray-100 rounded-lg">
+                                <i class="fas fa-chevron-right text-gray-600"></i>
+                            </button>
+                        </div>
+
+                        <button class="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded-lg">今天</button>
+                    </div>
+
+                    <!-- 右侧：搜索和设置 -->
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <input type="text" placeholder="搜索事项..." 
+                                   class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        <button class="p-2 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-cog text-gray-600"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日视图主体 -->
+            <div class="flex-1 overflow-auto">
+                <!-- 时间网格 -->
+                <div class="relative">
+                    <!-- 当前时间线 -->
+                    <div class="current-time-line" style="top: 720px;">
+                        <div class="current-time-dot"></div>
+                    </div>
+
+                    <div class="day-grid">
+                        <!-- 00:00 -->
+                        <div class="time-slot">00:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 01:00 -->
+                        <div class="time-slot">01:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 02:00 -->
+                        <div class="time-slot">02:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 03:00 -->
+                        <div class="time-slot">03:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 04:00 -->
+                        <div class="time-slot">04:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 05:00 -->
+                        <div class="time-slot">05:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 06:00 -->
+                        <div class="time-slot">06:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 07:00 -->
+                        <div class="time-slot">07:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 08:00 -->
+                        <div class="time-slot">08:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                            <div class="event-block work" style="top: 10px; height: 60px;">
+                                <div class="font-medium">晨会</div>
+                                <div class="text-xs opacity-90">08:00 - 09:00</div>
+                            </div>
+                        </div>
+
+                        <!-- 09:00 -->
+                        <div class="time-slot">09:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                            <div class="event-block important" style="top: 10px; height: 60px;">
+                                <div class="font-medium">重要会议</div>
+                                <div class="text-xs opacity-90">09:00 - 10:00</div>
+                            </div>
+                        </div>
+
+                        <!-- 10:00 -->
+                        <div class="time-slot">10:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                            <div class="event-block work" style="top: 10px; height: 60px;">
+                                <div class="font-medium">代码评审</div>
+                                <div class="text-xs opacity-90">10:00 - 11:00</div>
+                            </div>
+                        </div>
+
+                        <!-- 11:00 -->
+                        <div class="time-slot">11:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 12:00 -->
+                        <div class="time-slot">12:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                            <div class="event-block personal" style="top: 10px; height: 60px;">
+                                <div class="font-medium">午餐时间</div>
+                                <div class="text-xs opacity-90">12:00 - 13:00</div>
+                            </div>
+                        </div>
+
+                        <!-- 13:00 -->
+                        <div class="time-slot">13:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 14:00 -->
+                        <div class="time-slot">14:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                            <div class="event-block meeting" style="top: 10px; height: 140px;">
+                                <div class="font-medium">客户拜访</div>
+                                <div class="text-xs opacity-90">14:00 - 15:45</div>
+                                <div class="text-xs opacity-75 mt-1">地点：会议室A</div>
+                            </div>
+                        </div>
+
+                        <!-- 15:00 -->
+                        <div class="time-slot">15:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 16:00 -->
+                        <div class="time-slot">16:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                            <div class="event-block important" style="top: 10px; height: 60px;">
+                                <div class="font-medium">季度总结</div>
+                                <div class="text-xs opacity-90">16:00 - 17:00</div>
+                            </div>
+                        </div>
+
+                        <!-- 17:00 -->
+                        <div class="time-slot">17:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 18:00 -->
+                        <div class="time-slot">18:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                            <div class="event-block personal" style="top: 10px; height: 100px;">
+                                <div class="font-medium">健身</div>
+                                <div class="text-xs opacity-90">18:00 - 19:15</div>
+                                <div class="text-xs opacity-75 mt-1">地点：健身房</div>
+                            </div>
+                        </div>
+
+                        <!-- 19:00 -->
+                        <div class="time-slot">19:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 20:00 -->
+                        <div class="time-slot">20:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                            <div class="event-block personal" style="top: 10px; height: 120px;">
+                                <div class="font-medium">晚餐聚会</div>
+                                <div class="text-xs opacity-90">20:00 - 21:30</div>
+                                <div class="text-xs opacity-75 mt-1">地点：餐厅</div>
+                            </div>
+                        </div>
+
+                        <!-- 21:00 -->
+                        <div class="time-slot">21:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 22:00 -->
+                        <div class="time-slot">22:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+
+                        <!-- 23:00 -->
+                        <div class="time-slot">23:00</div>
+                        <div class="hour-column">
+                            <div class="half-hour-line"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟拖拽功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const eventBlocks = document.querySelectorAll('.event-block');
+            const hourColumns = document.querySelectorAll('.hour-column');
+
+            eventBlocks.forEach(block => {
+                block.draggable = true;
+                block.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.textContent);
+                    this.style.opacity = '0.5';
+                });
+                block.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                });
+            });
+
+            hourColumns.forEach(column => {
+                column.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.style.background = '#e0f2fe';
+                });
+                column.addEventListener('dragleave', function(e) {
+                    this.style.background = '';
+                });
+                column.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.style.background = '';
+                    console.log('事项已移动到新时间段');
+                });
+                
+                // 点击创建事项
+                column.addEventListener('click', function(e) {
+                    if (e.target === this || e.target.classList.contains('half-hour-line')) {
+                        console.log('在此时间段创建新事项');
+                    }
+                });
+            });
+
+            // 更新当前时间线位置
+            function updateCurrentTimeLine() {
+                const now = new Date();
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+                const totalMinutes = hours * 60 + minutes;
+                const pixelsPerMinute = 80 / 60; // 每小时80px，每分钟约1.33px
+                const topPosition = totalMinutes * pixelsPerMinute;
+                
+                const timeLine = document.querySelector('.current-time-line');
+                if (timeLine) {
+                    timeLine.style.top = topPosition + 'px';
+                }
+            }
+
+            // 每分钟更新一次时间线
+            updateCurrentTimeLine();
+            setInterval(updateCurrentTimeLine, 60000);
+
+            // 自动滚动到当前时间
+            function scrollToCurrentTime() {
+                const now = new Date();
+                const hours = now.getHours();
+                const scrollPosition = hours * 80 - 200; // 减去200px让当前时间显示在视窗中间
+                
+                const container = document.querySelector('.flex-1.overflow-auto');
+                if (container && scrollPosition > 0) {
+                    container.scrollTop = scrollPosition;
+                }
+            }
+
+            // 页面加载时滚动到当前时间
+            setTimeout(scrollToCurrentTime, 100);
+        });
+    </script>
+</body>
+</html> 

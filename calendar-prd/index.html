@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书日历原型 - Calendar Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .browser-mockup {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 20px;
+        }
+        .browser-header {
+            background: #f6f8fa;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        .browser-dots {
+            display: flex;
+            gap: 8px;
+        }
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot-red { background: #ff5f57; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #28ca42; }
+        .address-bar {
+            background: #fff;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 4px 12px;
+            margin-left: 16px;
+            flex: 1;
+            max-width: 600px;
+            font-size: 14px;
+            color: #666;
+        }
+        iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+        }
+        .prototype-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+        .prototype-section {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 24px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen bg-gray-50">
+        <!-- 页面标题 -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-6 py-4">
+                <h1 class="text-3xl font-bold text-gray-900">飞书日历组件原型设计</h1>
+                <p class="text-gray-600 mt-2">高保真交互原型 - 支持日/周/月视图切换、事项拖拽、自定义标签</p>
+            </div>
+        </div>
+
+        <div class="prototype-grid p-6">
+            <!-- 主日历界面 -->
+            <div class="prototype-section">
+                <div class="section-header">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    主日历界面 - 月视图
+                </div>
+                <div class="browser-mockup">
+                    <div class="browser-header">
+                        <div class="browser-dots">
+                            <div class="browser-dot dot-red"></div>
+                            <div class="browser-dot dot-yellow"></div>
+                            <div class="browser-dot dot-green"></div>
+                        </div>
+                        <div class="address-bar">
+                            https://calendar.feishu.cn/calendar/month
+                        </div>
+                    </div>
+                    <iframe src="calendar-main.html"></iframe>
+                </div>
+            </div>
+
+            <!-- 周视图 -->
+            <div class="prototype-section">
+                <div class="section-header">
+                    <i class="fas fa-calendar-week mr-2"></i>
+                    周视图界面
+                </div>
+                <div class="browser-mockup">
+                    <div class="browser-header">
+                        <div class="browser-dots">
+                            <div class="browser-dot dot-red"></div>
+                            <div class="browser-dot dot-yellow"></div>
+                            <div class="browser-dot dot-green"></div>
+                        </div>
+                        <div class="address-bar">
+                            https://calendar.feishu.cn/calendar/week
+                        </div>
+                    </div>
+                    <iframe src="calendar-week.html"></iframe>
+                </div>
+            </div>
+
+            <!-- 日视图 -->
+            <div class="prototype-section">
+                <div class="section-header">
+                    <i class="fas fa-calendar-day mr-2"></i>
+                    日视图界面
+                </div>
+                <div class="browser-mockup">
+                    <div class="browser-header">
+                        <div class="browser-dots">
+                            <div class="browser-dot dot-red"></div>
+                            <div class="browser-dot dot-yellow"></div>
+                            <div class="browser-dot dot-green"></div>
+                        </div>
+                        <div class="address-bar">
+                            https://calendar.feishu.cn/calendar/day
+                        </div>
+                    </div>
+                    <iframe src="calendar-day.html"></iframe>
+                </div>
+            </div>
+
+            <!-- 事项创建弹窗 -->
+            <div class="prototype-section">
+                <div class="section-header">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    事项创建/编辑界面
+                </div>
+                <div class="browser-mockup">
+                    <div class="browser-header">
+                        <div class="browser-dots">
+                            <div class="browser-dot dot-red"></div>
+                            <div class="browser-dot dot-yellow"></div>
+                            <div class="browser-dot dot-green"></div>
+                        </div>
+                        <div class="address-bar">
+                            https://calendar.feishu.cn/event/create
+                        </div>
+                    </div>
+                    <iframe src="event-modal.html"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 简单的交互增强
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('飞书日历原型加载完成');
+        });
+    </script>
+</body>
+</html> 

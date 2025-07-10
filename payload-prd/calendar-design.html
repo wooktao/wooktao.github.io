@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>日历组件设计稿 - 工时统计与负载度</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* 自定义样式 */
+      .workload-indicator {
+        background: linear-gradient(45deg, #10b981, #059669);
+      }
+      .workload-low {
+        background: #10b981;
+        color: white;
+      }
+      .workload-medium {
+        background: #f59e0b;
+        color: white;
+      }
+      .workload-high {
+        background: #ef4444;
+        color: white;
+      }
+      .workload-critical {
+        background: #dc2626;
+        color: white;
+      }
+      .task-tag {
+        font-size: 10px;
+        border-radius: 4px;
+      }
+      .calendar-cell {
+        min-height: 120px;
+        border: 1px solid #e5e7eb;
+      }
+      .calendar-cell:hover {
+        background-color: #f9fafb;
+      }
+      .date-number {
+        font-weight: 600;
+        color: #374151;
+      }
+      .weekend {
+        background-color: #fefce8;
+      }
+      .today {
+        background-color: #eff6ff;
+        border: 2px solid #3b82f6;
+      }
+      .stats-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        gap: 4px;
+      }
+      .worktime-stat {
+        font-size: 11px;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+      }
+      .workload-stat {
+        font-size: 10px;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 8px;
+        min-width: 40px;
+        text-align: center;
+        letter-spacing: 0.02em;
+      }
+
+      .workload-low {
+        background-color: rgb(220 252 231);
+        color: rgb(22 101 52);
+      }
+      .workload-medium {
+        background-color: rgb(254 249 195);
+        color: rgb(161 98 7);
+      }
+      .workload-high {
+        background-color: rgb(254 226 226);
+        color: rgb(185 28 28);
+      }
+      .workload-critical {
+        background-color: rgb(254 202 202);
+        color: rgb(153 27 27);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 p-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- 标题和说明 -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">日历组件设计稿</h1>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h2 class="text-lg font-semibold text-blue-900 mb-2">
+            组件演示：工时统计与负载度显示
+          </h2>
+          <div class="text-sm text-blue-800">
+            <p class="mb-2"><strong>功能说明：</strong></p>
+            <ul class="list-disc list-inside space-y-1">
+              <li>每日显示工时统计：「n个/n.h」格式</li>
+              <li>负载度指示器：负载 = ∑（任务工时 × 原始复杂度）</li>
+              <li>
+                负载度颜色编码：绿色(低) → 黄色(中) → 红色(高) → 深红(严重)
+              </li>
+              <li>任务标签展示当日主要工作内容</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 日历头部 -->
+      <div
+        class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+      >
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold text-gray-900">2024年12月</h2>
+            <div class="flex items-center space-x-4">
+              <button class="text-gray-500 hover:text-gray-700">
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  ></path>
+                </svg>
+              </button>
+              <button class="text-gray-500 hover:text-gray-700">
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 星期标题 -->
+        <div class="grid grid-cols-7 bg-gray-100 border-b border-gray-200">
+          <div class="p-3 text-center text-sm font-medium text-gray-600">
+            周日
+          </div>
+          <div class="p-3 text-center text-sm font-medium text-gray-600">
+            周一
+          </div>
+          <div class="p-3 text-center text-sm font-medium text-gray-600">
+            周二
+          </div>
+          <div class="p-3 text-center text-sm font-medium text-gray-600">
+            周三
+          </div>
+          <div class="p-3 text-center text-sm font-medium text-gray-600">
+            周四
+          </div>
+          <div class="p-3 text-center text-sm font-medium text-gray-600">
+            周五
+          </div>
+          <div class="p-3 text-center text-sm font-medium text-gray-600">
+            周六
+          </div>
+        </div>
+
+        <!-- 日历主体 -->
+        <div class="grid grid-cols-7">
+          <!-- 第一周 -->
+          <!-- 29日 (周日) -->
+          <div class="calendar-cell weekend p-2">
+            <div class="date-number text-gray-400">29</div>
+          </div>
+
+          <!-- 30日 (周一) -->
+          <div class="calendar-cell p-2">
+            <div class="stats-row">
+              <div class="date-number">30</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>3个/3.5h</span>
+                </div>
+                <div class="workload-stat workload-low">负载 2.1</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-blue-100 text-blue-800 px-2 py-1">
+                pdca 数据统计需求
+              </div>
+              <div class="task-tag bg-green-100 text-green-800 px-2 py-1">
+                Attritouch 前端方案
+              </div>
+            </div>
+          </div>
+
+          <!-- 01日 (周二) -->
+          <div class="calendar-cell p-2">
+            <div class="stats-row">
+              <div class="date-number text-red-600">01</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>4个/9.5h</span>
+                </div>
+                <div class="workload-stat workload-high">负载 4.8</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-red-100 text-red-800 px-2 py-1">
+                ai 招聘后台数据更改
+              </div>
+              <div class="task-tag bg-yellow-100 text-yellow-800 px-2 py-1">
+                attritouch1.0 框架
+              </div>
+            </div>
+          </div>
+
+          <!-- 02日 (周三) -->
+          <div class="calendar-cell p-2">
+            <div class="stats-row">
+              <div class="date-number">02</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>5个/8.5h</span>
+                </div>
+                <div class="workload-stat workload-high">负载 4.2</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-blue-100 text-blue-800 px-2 py-1">
+                ai 招聘后台数据更改
+              </div>
+              <div class="task-tag bg-green-100 text-green-800 px-2 py-1">
+                attritouch1.0 基础
+              </div>
+            </div>
+          </div>
+
+          <!-- 03日 (周四) -->
+          <div class="calendar-cell p-2">
+            <div class="stats-row">
+              <div class="date-number">03</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>5个/8.5h</span>
+                </div>
+                <div class="workload-stat workload-medium">负载 3.5</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-purple-100 text-purple-800 px-2 py-1">
+                attritouch1.0 基础组
+              </div>
+              <div class="task-tag bg-gray-100 text-gray-800 px-2 py-1">
+                pdca-周报群选择
+              </div>
+            </div>
+          </div>
+
+          <!-- 04日 (周五) -->
+          <div class="calendar-cell p-2">
+            <div class="stats-row">
+              <div class="date-number">04</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>4个/8.0h</span>
+                </div>
+                <div class="workload-stat workload-medium">负载 3.2</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-blue-100 text-blue-800 px-2 py-1">
+                pdca 周任务统计 ui
+              </div>
+              <div class="task-tag bg-green-100 text-green-800 px-2 py-1">
+                attritouch1.0 登录
+              </div>
+            </div>
+          </div>
+
+          <!-- 05日 (周六) -->
+          <div class="calendar-cell weekend p-2">
+            <div class="stats-row">
+              <div class="date-number">05</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>1个/2.0h</span>
+                </div>
+                <div class="workload-stat workload-low">负载 1.5</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-gray-100 text-gray-800 px-2 py-1">
+                管理后台用户反馈需
+              </div>
+            </div>
+          </div>
+
+          <!-- 第二周 -->
+          <!-- 06日 (周日) -->
+          <div class="calendar-cell weekend p-2">
+            <div class="date-number">06</div>
+          </div>
+
+          <!-- 07日 (周一) -->
+          <div class="calendar-cell p-2">
+            <div class="stats-row">
+              <div class="date-number text-red-600">07</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>5个/9.5h</span>
+                </div>
+                <div class="workload-stat workload-high">负载 4.7</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-yellow-100 text-yellow-800 px-2 py-1">
+                attritouch1.0 首页
+              </div>
+              <div class="task-tag bg-purple-100 text-purple-800 px-2 py-1">
+                attritouch 基础表单
+              </div>
+            </div>
+          </div>
+
+          <!-- 08日 (周二) -->
+          <div class="calendar-cell p-2">
+            <div class="stats-row">
+              <div class="date-number">08</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>4个/9.0h</span>
+                </div>
+                <div class="workload-stat workload-medium">负载 3.6</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-blue-100 text-blue-800 px-2 py-1">
+                attritouch弹窗层技术
+              </div>
+              <div class="task-tag bg-green-100 text-green-800 px-2 py-1">
+                attritouch 链接预览
+              </div>
+            </div>
+          </div>
+
+          <!-- 09日 (周三) -->
+          <div class="calendar-cell p-2">
+            <div class="stats-row">
+              <div class="date-number">09</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>4个/9.0h</span>
+                </div>
+                <div class="workload-stat workload-medium">负载 3.8</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-purple-100 text-purple-800 px-2 py-1">
+                attritouch表单检验
+              </div>
+              <div class="task-tag bg-gray-100 text-gray-800 px-2 py-1">
+                【独家记忆】h5 首页
+              </div>
+            </div>
+          </div>
+
+          <!-- 10日 (周四) - 今天 -->
+          <div class="calendar-cell today p-2">
+            <div class="stats-row">
+              <div class="date-number text-blue-600">10</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>4个/10.0h</span>
+                </div>
+                <div class="workload-stat workload-critical">负载 5.2</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-purple-100 text-purple-800 px-2 py-1">
+                【独家记忆】小程序
+              </div>
+              <div class="task-tag bg-blue-100 text-blue-800 px-2 py-1">
+                【独家记忆】交互弹
+              </div>
+            </div>
+          </div>
+
+          <!-- 11日 (周五) -->
+          <div class="calendar-cell p-2">
+            <div class="stats-row">
+              <div class="date-number">11</div>
+              <div style="display: flex; gap: 4px">
+                <div class="worktime-stat">
+                  <span>1个/0.5h</span>
+                </div>
+                <div class="workload-stat workload-low">负载 0.8</div>
+              </div>
+            </div>
+            <div class="mt-1 space-y-1">
+              <div class="task-tag bg-gray-100 text-gray-800 px-2 py-1">
+                任务拆分【AttriTou
+              </div>
+            </div>
+          </div>
+
+          <!-- 12日 (周六) -->
+          <div class="calendar-cell weekend p-2">
+            <div class="date-number">12</div>
+          </div>
+
+          <!-- 第三周 -->
+          <!-- 13-19日 - 空白天数 -->
+          <div class="calendar-cell weekend p-2">
+            <div class="date-number">13</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">14</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">15</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">16</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">17</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">18</div>
+          </div>
+          <div class="calendar-cell weekend p-2">
+            <div class="date-number">19</div>
+          </div>
+
+          <!-- 第四周 -->
+          <!-- 20-26日 - 空白天数 -->
+          <div class="calendar-cell weekend p-2">
+            <div class="date-number">20</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">21</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">22</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">23</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">24</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">25</div>
+          </div>
+          <div class="calendar-cell weekend p-2">
+            <div class="date-number">26</div>
+          </div>
+
+          <!-- 第五周 -->
+          <!-- 27-31日 + 下月1-2日 -->
+          <div class="calendar-cell weekend p-2">
+            <div class="date-number">27</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">28</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">29</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">30</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number">31</div>
+          </div>
+          <div class="calendar-cell p-2">
+            <div class="date-number text-gray-400">01</div>
+          </div>
+          <div class="calendar-cell weekend p-2">
+            <div class="date-number text-gray-400">02</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 图例说明 -->
+      <div
+        class="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      >
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">负载度指示说明</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="flex items-center space-x-3">
+            <div class="workload-stat workload-low">负载 0-2</div>
+            <span class="text-sm text-gray-600">低负载</span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="workload-stat workload-medium">负载 2-4</div>
+            <span class="text-sm text-gray-600">中等负载</span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="workload-stat workload-high">负载 4-5</div>
+            <span class="text-sm text-gray-600">高负载</span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <div class="workload-stat workload-critical">负载 5+</div>
+            <span class="text-sm text-gray-600">严重超载</span>
+          </div>
+        </div>
+        <!-- 新增：负载度计算示例 -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h4 class="text-md font-medium text-gray-900 mb-3">
+            💡 负载度计算示例
+          </h4>
+          <div class="flex items-start space-x-4">
+            <div class="relative">
+              <div class="workload-stat workload-medium">负载 3.2</div>
+              <!-- 常态显示的 tooltip -->
+              <div
+                class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-800 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap z-10"
+              >
+                <div class="font-medium mb-1">计算详情：</div>
+                <div>任务A: 2h × 1.5复杂度 = 3.0</div>
+                <div>任务B: 1h × 0.8复杂度 = 0.8</div>
+                <div class="border-t border-gray-600 mt-1 pt-1 font-medium">
+                  总负载: 3.8
+                </div>
+                <!-- 小箭头 -->
+                <div
+                  class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"
+                ></div>
+              </div>
+            </div>
+            <div class="text-sm text-gray-600">
+              <p class="font-medium">负载度 = ∑（任务工时 × 复杂度系数）</p>
+              <p class="mt-1">复杂度系数范围: 0.5(简单) - 2.0(复杂)</p>
+              <p class="mt-1">帮助评估工作强度和时间安排合理性</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 text-sm text-gray-600">
+          <p>
+            <strong>负载计算公式：</strong>负载 = ∑（任务工时 × 原始复杂度）
+          </p>
+          <p class="mt-1"><strong>工时统计格式：</strong>「任务数量/总工时」</p>
+          <p class="mt-1">
+            <strong>📱 交互功能：</strong
+            >悬停（hover）负载度标签可查看详细的工时计算过程
+          </p>
+        </div>
+      </div>
+
+      <!-- 人员排期模块 -->
+      <div
+        class="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      >
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">
+          👥 人员排期管理
+        </h3>
+
+        <!-- 人员选择下拉框 -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >选择排期人员</label
+          >
+          <select
+            class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">请选择人员...</option>
+            <option value="dev1">张三 - 前端开发</option>
+            <option value="dev2">李四 - 后端开发</option>
+            <option value="design1">王五 - UI设计师</option>
+            <option value="pm1">赵六 - 产品经理</option>
+          </select>
+        </div>
+
+        <!-- 按岗位分组的用户列表 -->
+        <div>
+          <!-- Tab 切换按钮 -->
+          <div class="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-4">
+            <button
+              class="flex-1 px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-md shadow-sm flex items-center justify-center"
+            >
+              <span class="w-2 h-2 bg-white rounded-full mr-2"></span>
+              前端开发
+            </button>
+            <button
+              class="flex-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-md flex items-center justify-center"
+            >
+              <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+              后端开发
+            </button>
+            <button
+              class="flex-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-md flex items-center justify-center"
+            >
+              <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+              UI设计
+            </button>
+            <button
+              class="flex-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-md flex items-center justify-center"
+            >
+              <span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+              产品
+            </button>
+          </div>
+
+          <!-- Tab 内容区域 - 当前显示前端开发 -->
+          <div
+            class="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden"
+          >
+            <div
+              class="grid grid-cols-6 gap-2 px-3 py-2 bg-gray-100 text-xs font-medium text-gray-600 border-b border-gray-200"
+            >
+              <div>姓名</div>
+              <div class="text-red-500">过去？未来？7日工时</div>
+              <div>负载度</div>
+              <div>参与总需求数</div>
+              <div>无任务需求数</div>
+              <div>状态</div>
+            </div>
+            <div class="divide-y divide-gray-200">
+              <div
+                class="grid grid-cols-6 gap-2 px-3 py-2 items-center text-sm"
+              >
+                <div class="flex items-center">
+                  <div
+                    class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium text-xs mr-2"
+                  >
+                    张
+                  </div>
+                  <span class="font-medium">张三</span>
+                </div>
+                <div class="font-medium">42.5h</div>
+                <div>
+                  <span class="workload-stat workload-medium text-xs">3.2</span>
+                </div>
+                <div>8个</div>
+                <div class="text-red-600 font-medium">2个</div>
+                <div>
+                  <span
+                    class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs"
+                    >繁忙</span
+                  >
+                </div>
+              </div>
+              <div
+                class="grid grid-cols-6 gap-2 px-3 py-2 items-center text-sm"
+              >
+                <div class="flex items-center">
+                  <div
+                    class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium text-xs mr-2"
+                  >
+                    陈
+                  </div>
+                  <span class="font-medium">陈七</span>
+                </div>
+                <div class="font-medium">35.0h</div>
+                <div>
+                  <span class="workload-stat workload-low text-xs">1.8</span>
+                </div>
+                <div>5个</div>
+                <div class="text-gray-600">0个</div>
+                <div>
+                  <span
+                    class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs"
+                    >可分配</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,218 @@
+/* 日历组件样式 - 工时统计与负载度设计稿 */
+
+/* 基础容器样式 */
+.calendar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+/* 日历网格 */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+/* 日历单元格 */
+.calendar-cell {
+    min-height: 120px;
+    border: 1px solid #e5e7eb;
+    padding: 8px;
+    position: relative;
+    background: #ffffff;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-cell:hover {
+    background-color: #f9fafb;
+}
+
+/* 周末样式 */
+.calendar-cell.weekend {
+    background-color: #fefce8;
+}
+
+/* 今天样式 */
+.calendar-cell.today {
+    background-color: #eff6ff;
+    border: 2px solid #3b82f6;
+}
+
+/* 日期数字 */
+.date-number {
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.date-number.holiday {
+    color: #dc2626;
+}
+
+.date-number.other-month {
+    color: #9ca3af;
+}
+
+.date-number.today {
+    color: #2563eb;
+}
+
+/* 任务标签 */
+.task-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 任务标签颜色变体 */
+.task-tag.blue { background: #dbeafe; color: #1e40af; }
+.task-tag.green { background: #dcfce7; color: #166534; }
+.task-tag.yellow { background: #fef3c7; color: #92400e; }
+.task-tag.red { background: #fecaca; color: #991b1b; }
+.task-tag.purple { background: #e9d5ff; color: #7c3aed; }
+.task-tag.gray { background: #f3f4f6; color: #374151; }
+
+/* 统计信息行 */
+.stats-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    gap: 4px;
+}
+
+/* 工时统计 */
+.worktime-stat {
+    font-size: 11px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+}
+
+/* 负载度指示器 */
+.workload-stat {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 8px;
+    min-width: 40px;
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+/* 负载度颜色等级 */
+.workload-low {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.workload-medium {
+    background-color: #fef3c7;
+    color: #ca8a04;
+}
+
+.workload-high {
+    background-color: #fed7d7;
+    color: #dc2626;
+}
+
+.workload-critical {
+    background-color: #fecaca;
+    color: #b91c1c;
+}
+
+/* Hover 功能样式 */
+.workload-stat {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.workload-stat:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.workload-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1000;
+    margin-bottom: 4px;
+}
+
+.workload-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #1f2937;
+}
+
+.workload-stat:hover .workload-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .calendar-cell {
+        min-height: 100px;
+        padding: 4px;
+    }
+    
+    .task-tag {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+    
+    .worktime-stat {
+        font-size: 10px;
+    }
+    
+    .workload-stat {
+        font-size: 9px;
+        padding: 1px 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-cell {
+        min-height: 80px;
+        padding: 2px;
+    }
+    
+    .stats-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        bottom: 4px;
+        left: 4px;
+        right: 4px;
+    }
+} 

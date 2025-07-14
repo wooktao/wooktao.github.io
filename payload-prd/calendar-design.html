@@ -634,56 +634,175 @@
               <div>状态</div>
             </div>
             <div class="divide-y divide-gray-200">
-              <div
-                class="grid grid-cols-6 gap-2 px-3 py-2 items-center text-sm"
-              >
-                <div class="flex items-center">
-                  <div
-                    class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium text-xs mr-2"
-                  >
-                    张
+              <!-- 张三行 -->
+              <div>
+                <div
+                  class="grid grid-cols-6 gap-2 px-3 py-2 items-center text-sm cursor-pointer hover:bg-gray-50"
+                  onclick="toggleTimeline('user1')"
+                >
+                  <div class="flex items-center">
+                    <div
+                      class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium text-xs mr-2"
+                    >
+                      张
+                    </div>
+                    <span class="font-medium">张三</span>
+                    <svg id="arrow-user1" class="w-4 h-4 ml-2 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
                   </div>
-                  <span class="font-medium">张三</span>
+                  
+                  <div class="text-red-600 font-medium">2个</div>
+
+                  <div>
+                    <span class="workload-stat workload-medium text-xs">3.2</span>
+                  </div>
+                  <div class="font-medium">42.5h</div>
+
+                  <div>8个</div>
+                  <div>
+                    <span
+                      class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs"
+                      >繁忙</span
+                    >
+                  </div>
                 </div>
                 
-                <div class="text-red-600 font-medium">2个</div>
-
-                <div>
-                  <span class="workload-stat workload-medium text-xs">3.2</span>
-                </div>
-                <div class="font-medium">42.5h</div>
-
-                <div>8个</div>
-                <div>
-                  <span
-                    class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs"
-                    >繁忙</span
-                  >
+                <!-- 张三的7日时间轴子表格 -->
+                <div id="timeline-user1" class="hidden bg-white border-t border-gray-200">
+                  <div class="px-3 py-2">
+                    <div class="text-xs text-gray-500 mb-2">未来7日负载度分布 & 工时分布</div>
+                    <div class="grid grid-cols-7 gap-1 text-xs">
+                      <!-- 日期头部 -->
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/13日</div>
+                        <div class="text-gray-400 mb-1">周日</div>
+                        <div class="workload-stat workload-low">负载 0</div>
+                        <div class="text-gray-400 mt-1">0个/0h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/14一</div>
+                        <div class="text-gray-600 mb-1">周一</div>
+                        <div class="workload-stat workload-high">负载 4.2</div>
+                        <div class="text-red-500 mt-1">4个/8.5h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/15二</div>
+                        <div class="text-gray-600 mb-1">周二</div>
+                        <div class="workload-stat workload-high">负载 4.8</div>
+                        <div class="text-red-500 mt-1">4个/8.5h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/16三</div>
+                        <div class="text-gray-600 mb-1">周三</div>
+                        <div class="workload-stat workload-medium">负载 3.6</div>
+                        <div class="text-orange-500 mt-1">3个/7.0h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/17四</div>
+                        <div class="text-gray-600 mb-1">周四</div>
+                        <div class="workload-stat workload-critical">负载 5.1</div>
+                        <div class="text-red-600 mt-1">5个/9.0h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/18五</div>
+                        <div class="text-gray-600 mb-1">周五</div>
+                        <div class="workload-stat workload-medium">负载 3.8</div>
+                        <div class="text-orange-500 mt-1">3个/7.5h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/19六</div>
+                        <div class="text-gray-400 mb-1">周六</div>
+                        <div class="workload-stat workload-low">负载 1.2</div>
+                        <div class="text-blue-500 mt-1">1个/2.0h</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div
-                class="grid grid-cols-6 gap-2 px-3 py-2 items-center text-sm"
-              >
-                <div class="flex items-center">
-                  <div
-                    class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium text-xs mr-2"
-                  >
-                    陈
+              
+              <!-- 陈七行 -->
+              <div>
+                <div
+                  class="grid grid-cols-6 gap-2 px-3 py-2 items-center text-sm cursor-pointer hover:bg-gray-50"
+                  onclick="toggleTimeline('user2')"
+                >
+                  <div class="flex items-center">
+                    <div
+                      class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium text-xs mr-2"
+                    >
+                      陈
+                    </div>
+                    <span class="font-medium">陈七</span>
+                    <svg id="arrow-user2" class="w-4 h-4 ml-2 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
                   </div>
-                  <span class="font-medium">陈七</span>
-                </div>
-                <div class="text-gray-600">0个</div>
-                <div>
-                  <span class="workload-stat workload-low text-xs">1.8</span>
-                </div>
-                <div class="font-medium">35.0h</div>
+                  <div class="text-gray-600">0个</div>
+                  <div>
+                    <span class="workload-stat workload-low text-xs">1.8</span>
+                  </div>
+                  <div class="font-medium">35.0h</div>
 
-                <div>5个</div>
-                <div>
-                  <span
-                    class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs"
-                    >可分配</span
-                  >
+                  <div>5个</div>
+                  <div>
+                    <span
+                      class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs"
+                      >可分配</span
+                    >
+                  </div>
+                </div>
+                
+                <!-- 陈七的7日时间轴子表格 -->
+                <div id="timeline-user2" class="hidden bg-white border-t border-gray-200">
+                  <div class="px-3 py-2">
+                    <div class="text-xs text-gray-500 mb-2">未来7日负载度分布 & 工时分布</div>
+                    <div class="grid grid-cols-7 gap-1 text-xs">
+                      <!-- 日期头部 -->
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/13日</div>
+                        <div class="text-gray-400 mb-1">周日</div>
+                        <div class="workload-stat workload-low">负载 0</div>
+                        <div class="text-gray-400 mt-1">0个/0h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/14一</div>
+                        <div class="text-gray-600 mb-1">周一</div>
+                        <div class="workload-stat workload-low">负载 2.1</div>
+                        <div class="text-blue-600 mt-1">2个/5.0h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/15二</div>
+                        <div class="text-gray-600 mb-1">周二</div>
+                        <div class="workload-stat workload-medium">负载 2.8</div>
+                        <div class="text-blue-600 mt-1">3个/6.0h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/16三</div>
+                        <div class="text-gray-600 mb-1">周三</div>
+                        <div class="workload-stat workload-low">负载 1.9</div>
+                        <div class="text-blue-600 mt-1">2个/4.5h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/17四</div>
+                        <div class="text-gray-600 mb-1">周四</div>
+                        <div class="workload-stat workload-medium">负载 3.2</div>
+                        <div class="text-orange-500 mt-1">3个/6.5h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/18五</div>
+                        <div class="text-gray-600 mb-1">周五</div>
+                        <div class="workload-stat workload-medium">负载 2.5</div>
+                        <div class="text-blue-600 mt-1">2个/5.5h</div>
+                      </div>
+                      <div class="text-center font-medium text-gray-600 py-1">
+                        <div class="mb-1">7/19六</div>
+                        <div class="text-gray-400 mb-1">周六</div>
+                        <div class="workload-stat workload-low">负载 0.8</div>
+                        <div class="text-blue-500 mt-1">1个/1.5h</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -691,5 +810,20 @@
         </div>
       </div>
     </div>
+
+    <script>
+      function toggleTimeline(userId) {
+        const timeline = document.getElementById('timeline-' + userId);
+        const arrow = document.getElementById('arrow-' + userId);
+        
+        if (timeline.classList.contains('hidden')) {
+          timeline.classList.remove('hidden');
+          arrow.style.transform = 'rotate(90deg)';
+        } else {
+          timeline.classList.add('hidden');
+          arrow.style.transform = 'rotate(0deg)';
+        }
+      }
+    </script>
   </body>
 </html>

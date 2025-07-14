@@ -647,7 +647,7 @@
                       张
                     </div>
                     <span class="font-medium">张三</span>
-                    <svg id="arrow-user1" class="w-4 h-4 ml-2 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg id="arrow-user1" class="w-4 h-4 ml-2 text-gray-400 transition-transform" style="transform: rotate(90deg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                   </div>
@@ -669,9 +669,23 @@
                 </div>
                 
                 <!-- 张三的7日时间轴子表格 -->
-                <div id="timeline-user1" class="hidden bg-white border-t border-gray-200">
+                <div id="timeline-user1" class="bg-white border-t border-gray-200">
                   <div class="px-3 py-2">
-                    <div class="text-xs text-gray-500 mb-2">未来7日负载度分布 & 工时分布</div>
+                    <div class="flex items-center justify-between mb-2">
+                      <button onclick="changeWeek('user1', -1)" class="flex items-center px-2 py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        上周
+                      </button>
+                      <div class="text-xs text-gray-500">未来7日负载度分布 & 工时分布</div>
+                      <button onclick="changeWeek('user1', 1)" class="flex items-center px-2 py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded">
+                        下周
+                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                      </button>
+                    </div>
                     <div class="grid grid-cols-7 gap-1 text-xs">
                       <!-- 日期头部 -->
                       <div class="text-center font-medium text-gray-600 py-1">
@@ -734,7 +748,7 @@
                       陈
                     </div>
                     <span class="font-medium">陈七</span>
-                    <svg id="arrow-user2" class="w-4 h-4 ml-2 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg id="arrow-user2" class="w-4 h-4 ml-2 text-gray-400 transition-transform" style="transform: rotate(90deg);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                   </div>
@@ -754,9 +768,23 @@
                 </div>
                 
                 <!-- 陈七的7日时间轴子表格 -->
-                <div id="timeline-user2" class="hidden bg-white border-t border-gray-200">
+                <div id="timeline-user2" class="bg-white border-t border-gray-200">
                   <div class="px-3 py-2">
-                    <div class="text-xs text-gray-500 mb-2">未来7日负载度分布 & 工时分布</div>
+                    <div class="flex items-center justify-between mb-2">
+                      <button onclick="changeWeek('user2', -1)" class="flex items-center px-2 py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        上周
+                      </button>
+                      <div class="text-xs text-gray-500">未来7日负载度分布 & 工时分布</div>
+                      <button onclick="changeWeek('user2', 1)" class="flex items-center px-2 py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded">
+                        下周
+                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                      </button>
+                    </div>
                     <div class="grid grid-cols-7 gap-1 text-xs">
                       <!-- 日期头部 -->
                       <div class="text-center font-medium text-gray-600 py-1">
@@ -812,6 +840,14 @@
     </div>
 
     <script>
+      // 初始化箭头状态
+      document.addEventListener('DOMContentLoaded', function() {
+        const arrow1 = document.getElementById('arrow-user1');
+        if (arrow1) {
+          arrow1.style.transform = 'rotate(90deg)';
+        }
+      });
+
       function toggleTimeline(userId) {
         const timeline = document.getElementById('timeline-' + userId);
         const arrow = document.getElementById('arrow-' + userId);
@@ -823,6 +859,21 @@
           timeline.classList.add('hidden');
           arrow.style.transform = 'rotate(0deg)';
         }
+      }
+
+      function changeWeek(userId, direction) {
+        // 这里可以实现切换周数据的逻辑
+        console.log(`切换用户 ${userId} 的时间轴，方向：${direction > 0 ? '下周' : '上周'}`);
+        
+        // 示例：可以在这里调用API获取不同周的数据
+        // 然后更新对应的时间轴内容
+        
+        // 临时显示切换效果
+        const timeline = document.getElementById('timeline-' + userId);
+        timeline.style.opacity = '0.5';
+        setTimeout(() => {
+          timeline.style.opacity = '1';
+        }, 200);
       }
     </script>
   </body>

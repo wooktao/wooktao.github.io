@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI任务生成中</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Heroicons -->
+    <script src="https://unpkg.com/heroicons@2.0.18/24/outline/index.js"></script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .loading-dots {
+            animation: loading 1.5s infinite;
+        }
+        .loading-dots:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .loading-dots:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes loading {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        .progress-bar {
+            animation: progress 3s ease-in-out infinite;
+        }
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 75%; }
+            100% { width: 100%; }
+        }
+        .ai-thinking {
+            animation: pulse 2s infinite;
+        }
+        .task-item {
+            transition: all 0.2s ease;
+        }
+        .task-item:hover {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="bg-black bg-opacity-20 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl">
+        <div class="glass-effect rounded-2xl shadow-2xl overflow-hidden">
+            <!-- 头部 -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <h2 class="text-lg font-semibold text-gray-900">创建任务</h2>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 搜索框 -->
+            <div class="p-6 border-b border-gray-100">
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" value="下周需要完成产品功能优化，包括用户界面改进和性能提升，预计需要3-5天时间" 
+                           class="w-full pl-10 pr-20 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50" readonly>
+                    <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-400 text-white px-4 py-1.5 rounded-md text-sm cursor-not-allowed" disabled>
+                        生成中...
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 过滤标签 -->
+            <div class="px-6 py-3 border-b border-gray-100">
+                <div class="flex items-center space-x-4 text-sm">
+                    <span class="text-gray-600 flex items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></span>
+                    <span class="text-gray-600 flex items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></span>
+                    <span class="text-gray-600 flex items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
+                    <span class="text-gray-600 flex items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg></span>
+                    <span class="text-gray-600 flex items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></span>
+                    <span class="text-gray-600 flex items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></span>
+                    <span class="text-gray-600 flex items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></span>
+                    <div class="ml-auto text-gray-500">Esc 关闭</div>
+                </div>
+            </div>
+            
+            <!-- 加载内容 -->
+            <div class="p-6">
+                
+                <!-- AI思考过程 -->
+                <div class="mb-6 bg-blue-50 rounded-lg p-4">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center ai-thinking">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-800">AI 正在生成任务</div>
+                            <div class="text-sm text-gray-500">正在分析您的需求...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3 text-sm">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span class="text-gray-600">✓ 需求理解完成</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-sm">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span class="text-gray-600">✓ 任务拆解分析</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-sm">
+                            <div class="flex space-x-1">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full loading-dots"></div>
+                                <div class="w-2 h-2 bg-blue-500 rounded-full loading-dots"></div>
+                                <div class="w-2 h-2 bg-blue-500 rounded-full loading-dots"></div>
+                            </div>
+                            <span class="text-gray-600">正在生成具体任务...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 进度条 -->
+                <div class="mb-6">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>生成进度</span>
+                        <span>75%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full progress-bar"></div>
+                    </div>
+                </div>
+                
+                <!-- 预览任务卡片 -->
+                <div class="space-y-3">
+                    <div class="text-sm font-medium text-gray-700 mb-3">预览生成的任务：</div>
+                    
+                    <!-- 任务项 1 - 生成中 -->
+                    <div class="task-item flex items-center justify-between py-3 px-4 border border-gray-200 rounded-lg opacity-50">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-5 bg-gray-200 rounded animate-pulse"></div>
+                            <div class="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                        </div>
+                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                <div class="h-3 bg-gray-200 rounded w-12 animate-pulse"></div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="h-3 bg-gray-200 rounded w-8 animate-pulse"></div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <div class="h-3 bg-gray-200 rounded w-16 animate-pulse"></div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="h-6 bg-gray-200 rounded w-8 animate-pulse"></div>
+                                <div class="h-6 bg-gray-200 rounded w-8 animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 任务项 2 - 生成中 -->
+                    <div class="task-item flex items-center justify-between py-3 px-4 border border-gray-200 rounded-lg opacity-30">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-5 bg-gray-200 rounded animate-pulse"></div>
+                            <div class="h-4 bg-gray-200 rounded w-40 animate-pulse"></div>
+                        </div>
+                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <span>👤</span>
+                                <div class="h-3 bg-gray-200 rounded w-12 animate-pulse"></div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <span>⏰</span>
+                                <div class="h-3 bg-gray-200 rounded w-8 animate-pulse"></div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <span>📅</span>
+                                <div class="h-3 bg-gray-200 rounded w-16 animate-pulse"></div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="h-6 bg-gray-200 rounded w-8 animate-pulse"></div>
+                                <div class="h-6 bg-gray-200 rounded w-8 animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 任务项 3 - 生成中 -->
+                    <div class="task-item flex items-center justify-between py-3 px-4 border border-gray-200 rounded-lg opacity-20">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-5 bg-gray-200 rounded animate-pulse"></div>
+                            <div class="h-4 bg-gray-200 rounded w-28 animate-pulse"></div>
+                        </div>
+                        <div class="flex items-center space-x-6 text-sm text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <span>👤</span>
+                                <div class="h-3 bg-gray-200 rounded w-12 animate-pulse"></div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <span>⏰</span>
+                                <div class="h-3 bg-gray-200 rounded w-8 animate-pulse"></div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <span>📅</span>
+                                <div class="h-3 bg-gray-200 rounded w-16 animate-pulse"></div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="h-6 bg-gray-200 rounded w-8 animate-pulse"></div>
+                                <div class="h-6 bg-gray-200 rounded w-8 animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

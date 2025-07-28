@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主界面环境</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .floating-ball {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+        }
+        .floating-ball:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- 模拟工作环境 -->
+    <div class="p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="flex items-center space-x-4 mb-4">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" 
+                     alt="用户头像" class="w-10 h-10 rounded-full">
+                <div>
+                    <h2 class="font-semibold text-gray-800">张三的工作台</h2>
+                    <p class="text-sm text-gray-500">产品经理 • 在线</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <h3 class="font-medium text-blue-900 mb-1">进行中任务</h3>
+                    <p class="text-2xl font-bold text-blue-600">12</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                    <h3 class="font-medium text-green-900 mb-1">已完成</h3>
+                    <p class="text-2xl font-bold text-green-600">28</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="font-semibold text-gray-800 mb-4">最近项目</h3>
+            <div class="space-y-3">
+                <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=40&h=40&fit=crop" 
+                         alt="项目图标" class="w-8 h-8 rounded">
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-800">产品功能优化</p>
+                        <p class="text-sm text-gray-500">进度 75%</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=40&h=40&fit=crop" 
+                         alt="项目图标" class="w-8 h-8 rounded">
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-800">用户体验研究</p>
+                        <p class="text-sm text-gray-500">进度 45%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 悬浮球 -->
+    <div class="fixed bottom-6 right-6 w-14 h-14 gradient-bg rounded-full cursor-pointer floating-ball flex items-center justify-center z-50">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+    </div>
+</body>
+</html>
